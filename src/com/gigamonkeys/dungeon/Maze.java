@@ -1,7 +1,6 @@
 package com.gigamonkeys.dungeon;
 
 import static com.gigamonkeys.dungeon.Direction.*;
-
 import java.util.stream.Stream;
 
 /**
@@ -19,17 +18,85 @@ public class Maze {
     var blobbyblobLair = new Room("the lair of a horrible creature");
     var dining = new Room("a grand dining room with a crystal chandelier and tapestries on the walls");
     var storeroom = new Room("a storeroom");
+    var hall = new Room("a long hallway");
+    var throneRoom = new Room("a massive throneroom");
+    var pit = new Room("a pit of nothing");
 
     // Doors
     entry.connect("oaken door", kitchen, EAST);
     entry.connect("dank tunnel", blobbyblobLair, SOUTH);
     kitchen.connect("swinging door", dining, EAST);
     kitchen.connect("wooden door", storeroom, SOUTH);
+    dining.connect("golden archway", hall, NORTH);
 
     // Furniture
     var pedestal = new Thing.Furniture("pedestal", "stone pedestal");
     var table = new Thing.Furniture("table", "wooden table");
     var tray = new Thing.Furniture("tray", "TV tray");
+    
+    var painting = new Thing.Furniture("painting", "painting of a famous artist in their bedroom") {
+      boolean open = false;
+
+      @Override
+      public String description() {
+        if(!open) {
+          return super.description() + ", a shut door visable at the back of the room";
+        } else {
+          return super.description() + ", an open door visable at the back of the room";
+        }
+      }
+
+      public String open() {
+        if(!open) {
+          open = true;
+          hall.connect("small hole in the painting", throneRoom, NORTH);
+          return "The door in the painting opens, behind which you can see a throne. It almost looks real.";
+        } else {
+          return "You tear the doorframe off its hinges. Good job. What have you accomplished?";
+        }
+      }
+    };
+
+    var gnitniap = new Thing.Furniture("painting", "painting of a living room with an open door at the back leading to what looks to be a bedroom");
+
+    var trapdoor = new Thing.Furniture("trapdoor", "slightly moldy trapdoor") {
+      boolean open = false;
+
+      @Override
+      public String description() {
+        return (open ? "an open " : "a closed ") + super.description();
+      }
+
+      public String open() {
+        if (!open) {
+          open = true;
+          return "The trapdoor creaks open, revealing a staircase down.";
+        } else {
+          return "The " + name() + " is already open.";
+        }
+      }
+
+      public String close() {
+        if (open) {
+          open = false;
+          return "The trapdoor closes with a heavy thud.";
+        } else {
+          return "The " + name() + " is already closed.";
+        }
+      }
+    };
+
+    var throne = new Thing.Furniture("throne", "massive throne with ornate carvings intricately drawn into its golden crest") {
+      @Override
+      public Stream<Action> onTalk(Action.Talk a) {
+        if(a.what().toUpperCase().contains("FROBNICATE")) {
+          //throneRoom.placeThing(trapdoor, "on the only clean part of the floor where the throne used to lay");
+          return Stream.of(new Action.Move(this, throneRoom, "the back of"));
+        }
+        return Stream.empty();
+        //location().ifPresent(l -> moveTo(l, "around the room"));
+      }
+    };
 
     var treasureChest = new Thing.Furniture("chest", "wooden treasure chest") {
       boolean open = false;
@@ -205,6 +272,9 @@ public class Maze {
     entry.placeThing(tray, "by the door");
     tray.placeThing(sandwich, "on");
     dining.placeThing(sword, "propped against a wall");
+    hall.placeThing(painting, "covering the north wall");
+    throneRoom.placeThing(gnitniap, "on the south wall");
+    throneRoom.placeThing(throne, "in the center of the room");
 
     return entry;
   }
