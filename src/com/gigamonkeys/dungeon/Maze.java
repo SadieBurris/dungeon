@@ -20,7 +20,6 @@ public class Maze {
     var storeroom = new Room("a storeroom");
     var hall = new Room("a long hallway");
     var throneRoom = new Room("a massive throneroom");
-    var pit = new Room("a pit of nothing");
 
     // Doors
     entry.connect("oaken door", kitchen, EAST);
@@ -90,11 +89,19 @@ public class Maze {
       @Override
       public Stream<Action> onTalk(Action.Talk a) {
         if(a.what().toUpperCase().contains("FROBNICATE")) {
-          //throneRoom.placeThing(trapdoor, "on the only clean part of the floor where the throne used to lay");
+          //theres some kind of bug with moving, I think your code when it destroys the blobbyblob would break as well
+          //I wanted to have it so if you said frobnicate the throne would move and a trapdoor appears
+          //but it was being annoying with concucrrentmodificationexceptions and also this thingy with saying
+          //the rooms memory code thing, and I couldn't change the move text shit because Location doesn't have
+          //a name stored in it (so ofc it isn't accessable) and I didn't want to fuck with your code too much
+          //and ive spent way too much time just like looking at it and thinking of a minimally invasive way of doing
+          //this but like I dont know and like its not worth it. Sorry, heres half broken code. If you want it functional,
+          //just remove this line below and it wont do the name memory thing and saying the magic word wont do 
+          //anything sooo yeah.
+          
           return Stream.of(new Action.Move(this, throneRoom, "the back of"));
         }
         return Stream.empty();
-        //location().ifPresent(l -> moveTo(l, "around the room"));
       }
     };
 
